@@ -1,53 +1,65 @@
-import { z } from 'zod';
-
+import { z } from "zod";
 
 export default {
-	async fetch(request, env, ctx) {
-		if (request.method !== 'POST') {
-			return new Response('Method not allowed', { status: 405 });
-		}
+  async fetch(request, env, ctx) {
+    const corsHeaders = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    };
 
-		try {
-			const data = await request.json();
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: corsHeaders,
+      });
+    }
 
-			const schema = z.object({
-				name: z.string().min(2, 'Name must be at least 2 characters.'),
-				email: z.string().email('Invalid email format.'),
-				message: z.string().min(5, 'Message must be at least 5 characters.'),
-			});
+    if (request.method !== "POST") {
+      return new Response("Method not allowed", { status: 405, headers: corsHeaders });
+    }
 
-			// ولیدیشن داده‌ها
-			const parsed = schema.safeParse(data);
+    try {
+      const data = await request.json();
 
-			if (!parsed.success) {
-				const errors = parsed.error.errors.map((e) => `${e.path[0]}: ${e.message}`).join('; ');
-				return new Response(`Validation failed: ${errors}`, { status: 400 });
-			}
+      const schema = z.object({
+        name: z.string().min(2, "Name must be at least 2 characters."),
+        email: z.string().email("Invalid email format."),
+        message: z.string().min(5, "Message must be at least 5 characters.")
+      });
 
-			const { name, email, message } = parsed.data;
+      const parsed = schema.safeParse(data);
 
-			const text = `📩 New Message:\n\n👤 Name: ${name}\n✉️ Email: ${email}\n📝 Message: ${message}`;
+      if (!parsed.success) {
+        const errors = parsed.error.errors.map(e => `${e.path[0]}: ${e.message}`).join("; ");
+        return new Response(`Validation failed: ${errors}`, { status: 400, headers: corsHeaders });
+      }
 
-			const telegramApiUrl = `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`;
+      const { name, email, message } = parsed.data;
 
-			const telegramResponse = await fetch(telegramApiUrl, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					chat_id: env.TELEGRAM_CHAT_ID,
-					text: text,
-				}),
-			});
+      const text = `📩 New Message:\n\n👤 Name: ${name}\n✉️ Email: ${email}\n📝 Message: ${message}`;
 
-			const telegramData = await telegramResponse.json();
+      const telegramApiUrl = `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`;
 
-			if (!telegramResponse.ok) {
-				return new Response(`Telegram API error: ${telegramData.description}`, { status: 500 });
-			}
+      const telegramResponse = await fetch(telegramApiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: env.TELEGRAM_CHAT_ID,
+          text: text
+        })
+      });
 
-			return new Response('Message sent successfully!', { status: 200 });
-		} catch (err) {
-			return new Response(`Server error: ${err.message}`, { status: 500 });
-		}
-	},
+      const telegramData = await telegramResponse.json();
+
+      if (!telegramResponse.ok) {
+        return new Response(`Telegram API error: ${telegramData.description}`, { status: 500, headers: corsHeaders });
+      }
+
+      return new Response("Message sent successfully!", { status: 200, headers: corsHeaders });
+
+    } catch (err) {
+      return new Response(`Server error: ${err.message}`, { status: 500, headers: corsHeaders });
+    }
+  },
 };

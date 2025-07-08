@@ -31,7 +31,6 @@
 		"TELEGRAM_BOT_TOKEN": "",
 		"TELEGRAM_CHAT_ID": ""
 	},
-	
 	/**
 	 * Note: Use secrets to store sensitive data.
 	 * https://developers.cloudflare.com/workers/configuration/secrets/
