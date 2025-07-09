@@ -9,6 +9,7 @@ This project is a simple Cloudflare Worker that accepts `name`, `email`, and `me
 * Accepts POST requests from a website form
 * Validates data using [zod](https://github.com/colinhacks/zod)
 * Sends messages directly to Telegram
+* Rate limits to prevent spamming
 * Supports CORS for browser use
 * Handles preflight (OPTIONS) requests
 
@@ -16,32 +17,26 @@ This project is a simple Cloudflare Worker that accepts `name`, `email`, and `me
 
 ## ⚙️ Setup & Installation
 
-1. Initialize the project with [Wrangler](https://developers.cloudflare.com/workers/wrangler/get-started/):
+1. Clone the project:
 
 ```bash
-npm install -g wrangler
-wrangler init my-telegram-worker
-cd my-telegram-worker
+git clone https://github.com/Aking16/portfolio-contact-microservice-cloudflare.git
 ```
 
-2. Install zod:
+2. Install the packages:
 
 ```bash
-npm install zod
+npm install
 ```
 
-3. Replace the contents of `src/index.js` (or `src/worker.js`) with your Worker code.
-
-4. Add environment variables in `wrangler.jsonc`:
+3. Add environment variables in `wrangler.jsonc`:
 
 ```jsonc
 {
-  "name": "my-telegram-worker",
-  "type": "javascript",
   "vars": {
     "TELEGRAM_BOT_TOKEN": "YOUR_BOT_TOKEN",
     "TELEGRAM_CHAT_ID": "YOUR_CHAT_ID"
-  }
+  },
 }
 ```
 
@@ -50,6 +45,23 @@ Alternatively, use secrets for better security:
 ```bash
 wrangler secret put TELEGRAM_BOT_TOKEN
 wrangler secret put TELEGRAM_CHAT_ID
+```
+
+4. Add your KV storage in `wrangler.jsonc`:
+
+```bash
+wrangler kv namespace create "RATE_LIMIT_KV"
+```
+
+then place the given ID after creating the namespace in the wrangler config.
+
+```jsonc
+  "kv_namespaces": [
+    {
+      "binding": "RATE_LIMIT_KV",
+      "id": "YOUR_KV_STORAGE_ID"
+    }
+  ]
 ```
 
 5. Deploy your Worker:
