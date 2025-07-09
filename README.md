@@ -50,7 +50,7 @@ wrangler secret put TELEGRAM_CHAT_ID
 4. Add your KV storage in `wrangler.jsonc`:
 
 ```bash
-wrangler wrangler kv namespace create "RATE_LIMIT_KV"
+wrangler kv namespace create "RATE_LIMIT_KV"
 ```
 
 then place the given ID after creating the namespace in the wrangler config.
