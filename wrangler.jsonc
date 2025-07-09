@@ -47,4 +47,11 @@
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
 	 */
 	// "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
+
+	"kv_namespaces": [
+    {
+      "binding": "RATE_LIMIT_KV",
+      "id": "846b0f9ed01e4faaa66682f59b81ab43"
+    }
+  ]
 }
