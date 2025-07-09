@@ -6,7 +6,7 @@ const MAX_REQUESTS_PER_WINDOW = 3;    // Max 3 messages per IP per minute
 export default {
   async fetch(request, env, ctx) {
     const corsHeaders = {
-      "Access-Control-Allow-Origin": "https://amiridev.ir",
+      "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type"
     };
